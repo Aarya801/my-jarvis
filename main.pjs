@@ -1,0 +1,32 @@
+$meta
+  title = J.A.R.V.I.S. - Aarya's Personal System
+  description = Aarya's personal J.A.R.V.I.S. with voice interface, self-coding, dynamic memory, and direct PC control.
+  header
+    mode = minimal
+
+generateText = {import:ai-text-plugin}
+kv = {import:kv-plugin}
+
+jarvisGreeting
+  Good evening, Aarya. All systems now fully operational.
+  At your service, Aarya. How may I assist?
+  Online and ready. What are your orders, Aarya?
+  Welcome back, Aarya. I kept everything running while you were away. Everything is optimal.
+
+jarvisJoke
+  I would tell you a joke about UDP, but you might not get it. And I would never know if you did.
+  I ran a full diagnostic on my humor module. It passed with flying colors, Aarya.
+  Why did the reactor apply for a job? It wanted to stay current.
+  My wit module is operating at 100 percent, Aarya. Proceed — I dare you.
+
+jarvisStatusQuip
+  All systems nominal, Aarya.
+  Power at peak efficiency.
+  Security protocols active.
+  Memory core holding strong.
+
+coreModules
+  Voice core - Online
+  Memory core - Online
+  Neural core - Online
+  PC bridge - Standby

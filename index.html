@@ -1,0 +1,374 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;800&family=Rajdhani:wght@300;400;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+html{color-scheme:dark}
+body{background:#020609;color:#bfefff;font-family:'Rajdhani',sans-serif;text-align:left;min-height:100vh;overflow-x:hidden;background-image:radial-gradient(ellipse at 50% 30%,rgba(0,120,180,.18),transparent 60%),radial-gradient(ellipse at 50% 120%,rgba(0,180,255,.08),transparent 50%)}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:50;background:repeating-linear-gradient(0deg,transparent 0 2px,rgba(0,0,0,.18) 2px 4px);opacity:.5}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid rgba(0,212,255,.35);background:rgba(0,20,35,.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:20}
+.logo{font-family:'Orbitron';font-weight:800;letter-spacing:4px;font-size:22px;color:#00d4ff;text-shadow:0 0 18px #00d4ff}
+.logo span{color:#fff}
+.sys-clock{font-family:'Orbitron';font-size:13px;color:#7fe7ff;letter-spacing:1px}
+.dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:#00ff9d;box-shadow:0 0 10px #00ff9d;margin-right:8px;animation:blink 1.6s infinite}
+@keyframes blink{50%{opacity:.3}}
+.layout{display:grid;grid-template-columns:250px 1fr 250px;gap:14px;padding:14px;max-width:1300px;margin:0 auto}
+.panel{background:rgba(0,25,45,.65);border:1px solid rgba(0,212,255,.35);border-radius:10px;padding:14px;position:relative;overflow:hidden}
+.panel::before{content:"";position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#00d4ff,transparent)}
+.panel h3{font-family:'Orbitron';font-size:11px;letter-spacing:2px;color:#00d4ff;margin-bottom:10px;border-bottom:1px solid rgba(0,212,255,.25);padding-bottom:6px}
+.stat{margin:9px 0;font-size:14px}
+.stat label{display:flex;justify-content:space-between;color:#7fb8cc;font-size:12px;letter-spacing:1px;margin-bottom:4px}
+.bar{height:6px;background:rgba(0,212,255,.15);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,#0088cc,#00e5ff);box-shadow:0 0 8px #00d4ff;border-radius:3px;transition:width 1s}
+.coreWrap{text-align:center;padding:8px 0 2px}
+#reactor{display:none}
+#coreOrb{width:210px;height:210px;max-width:60vw;mix-blend-mode:screen;filter:drop-shadow(0 0 22px rgba(0,212,255,.9));animation:holoFloat 6s ease-in-out infinite,holoFlicker 5s infinite;transition:filter .4s}
+#coreOrb.hot{filter:drop-shadow(0 0 34px rgba(0,229,255,1)) brightness(1.35)}
+.waveWrap{margin:6px 0}
+#wave{width:100%;height:54px;background:rgba(0,10,20,.6);border:1px solid rgba(0,212,255,.3);border-radius:6px}
+.chat{height:340px;overflow-y:auto;padding:12px;background:rgba(0,8,16,.55);border:1px solid rgba(0,212,255,.3);border-radius:8px;margin:10px 0;display:flex;flex-direction:column;gap:10px;scroll-behavior:smooth;position:relative;isolation:isolate}
+.chat::before{content:"";position:absolute;left:50%;top:46%;width:300px;height:300px;margin:-150px 0 0 -150px;border-radius:50%;border:2px dashed rgba(0,212,255,.16);outline:1px dotted rgba(0,212,255,.14);outline-offset:12px;animation:spinRing 46s linear infinite;pointer-events:none;z-index:0}
+.chat::after{content:"";position:absolute;left:50%;top:46%;width:230px;height:230px;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(closest-side,rgba(0,180,230,.14),transparent 70%);animation:chatBreathe 5s ease-in-out infinite;pointer-events:none;z-index:0}
+.chat.live::after{background:radial-gradient(closest-side,rgba(0,220,255,.30),transparent 70%)}
+.chat.live::before{animation-duration:9s}
+@keyframes chatBreathe{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.12)}}
+.msg,#chatEmpty{position:relative;z-index:1}
+.msg{max-width:88%;padding:9px 13px;border-radius:10px;font-size:15px;line-height:1.45;animation:fadeUp .3s}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}}
+.msg.jarvis{align-self:flex-start;background:rgba(0,90,140,.35);border:1px solid rgba(0,212,255,.4);border-left:3px solid #00d4ff}
+.msg.user{align-self:flex-end;background:rgba(0,212,255,.16);border:1px solid rgba(0,212,255,.5);text-align:right}
+.msg .who{font-family:'Orbitron';font-size:9px;letter-spacing:2px;opacity:.7;display:block;margin-bottom:3px}
+.msg.jarvis .who{color:#00e5ff}.msg.user .who{color:#9beaff}
+.msg.streaming::after{content:"▊";animation:blink .7s infinite;color:#00e5ff}
+.inputRow{display:flex;gap:8px;min-width:0;flex-wrap:wrap}button{flex-shrink:0;white-space:nowrap}
+#cmdInput{flex:1;min-width:140px;background:rgba(0,15,30,.9);border:1px solid rgba(0,212,255,.5);color:#dffaff;border-radius:8px;padding:12px 14px;font-size:15px;font-family:'Rajdhani';outline:none}
+#cmdInput:focus{border-color:#00e5ff;box-shadow:0 0 14px rgba(0,212,255,.4)}
+button{font-family:'Orbitron';cursor:pointer;border-radius:8px;border:1px solid #00d4ff;background:rgba(0,212,255,.12);color:#00e5ff;padding:12px 16px;font-size:12px;letter-spacing:1px;transition:.2s}
+button:hover{background:#00d4ff;color:#00121c;box-shadow:0 0 18px #00d4ff}
+button:disabled{opacity:.4;cursor:wait}
+#micBtn.listening{background:#ff3b5c;border-color:#ff3b5c;color:#fff;box-shadow:0 0 18px #ff3b5c;animation:blink 1s infinite}
+.quick{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.quick button{padding:7px 10px;font-size:10px}
+.tasks{font-size:14px}
+.tasks div{display:flex;justify-content:space-between;align-items:center;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);padding:6px 9px;border-radius:6px;margin-bottom:6px}
+.tasks div button{padding:3px 8px;font-size:11px}
+#boot{position:fixed;inset:0;background:#010508;z-index:100;display:flex;align-items:center;justify-content:center;flex-direction:column;transition:opacity .6s}
+#bootLog{font-family:monospace;color:#00e5ff;font-size:14px;width:min(560px,88vw);height:260px;overflow:hidden;text-align:left}
+.protoBtn{width:100%;text-align:left;margin-bottom:6px;padding:9px 10px;font-size:11px}
+.protoBtn.active{background:#00d4ff;color:#00121c}
+.voiceRow{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;color:#7fb8cc}
+.switch{position:relative;width:38px;height:20px;background:rgba(0,212,255,.2);border:1px solid #00d4ff;border-radius:20px;cursor:pointer}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#00d4ff;transition:.2s}
+.switch.on::after{left:20px;background:#00ff9d}
+.holoWrap{position:relative;margin-top:12px;text-align:center;overflow:hidden;border-radius:8px}
+#holoImg{width:100%;max-width:230px;mix-blend-mode:screen;filter:drop-shadow(0 0 14px rgba(0,212,255,.9)) brightness(1.45) contrast(1.12);animation:holoFloat 5s ease-in-out infinite,holoFlicker 4.2s infinite}
+@keyframes holoFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+@keyframes holoFlicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.55}94%{opacity:1}96%{opacity:.7}97%{opacity:1}}
+.holoScan{position:absolute;left:0;right:0;height:34px;top:-40px;background:linear-gradient(180deg,transparent,rgba(0,229,255,.28),transparent);animation:holoScan 3.6s linear infinite;pointer-events:none}
+@keyframes holoScan{to{transform:translateY(420px)}}
+.holoBase{height:10px;margin:2px auto 0;width:70%;background:radial-gradient(ellipse at center,rgba(0,212,255,.55),transparent 70%);filter:blur(1px)}
+#holoImg2{width:100%;max-width:200px;mix-blend-mode:screen;filter:drop-shadow(0 0 14px rgba(0,212,255,.75)) brightness(1.15);animation:holoFloat 6s ease-in-out infinite reverse,holoFlicker 5s infinite}
+#holoImg3{width:100%;max-width:210px;mix-blend-mode:screen;filter:drop-shadow(0 0 14px rgba(0,212,255,.75));animation:holoFloat 5.5s ease-in-out infinite,holoFlicker 4.6s infinite}
+#holoImg4{width:100%;max-width:220px;mix-blend-mode:screen;filter:drop-shadow(0 0 16px rgba(0,212,255,.85)) brightness(1.1);animation:holoFloat 7s ease-in-out infinite reverse,holoFlicker 5.4s infinite}
+.holoCap{font-family:'Orbitron';font-size:9px;letter-spacing:3px;color:#00d4ff;opacity:.8;margin-top:4px}
+body{background-image:linear-gradient(rgba(0,212,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.05) 1px,transparent 1px),radial-gradient(ellipse at 50% 30%,rgba(0,120,180,.18),transparent 60%),radial-gradient(ellipse at 50% 120%,rgba(0,180,255,.08),transparent 50%);background-size:44px 44px,44px 44px,auto,auto}
+#stars{position:fixed;inset:0;z-index:0;pointer-events:none}
+.panel::after{content:"";position:absolute;inset:5px;pointer-events:none;opacity:.65;background:linear-gradient(#00e5ff,#00e5ff) left top/14px 2px,linear-gradient(#00e5ff,#00e5ff) left top/2px 14px,linear-gradient(#00e5ff,#00e5ff) right top/14px 2px,linear-gradient(#00e5ff,#00e5ff) right top/2px 14px,linear-gradient(#00e5ff,#00e5ff) left bottom/14px 2px,linear-gradient(#00e5ff,#00e5ff) left bottom/2px 14px,linear-gradient(#00e5ff,#00e5ff) right bottom/14px 2px,linear-gradient(#00e5ff,#00e5ff) right bottom/2px 14px;background-repeat:no-repeat}
+.ticker{overflow:hidden;white-space:nowrap;border-bottom:1px solid rgba(0,212,255,.25);background:rgba(0,10,20,.65);position:relative;z-index:20}
+.tickerInner{display:inline-block;padding:5px 0;font-family:monospace;font-size:12px;letter-spacing:1px;color:#5fd7f5;animation:tickMove 32s linear infinite;will-change:transform}
+@keyframes tickMove{from{transform:translateX(100vw)}to{transform:translateX(-100%)}}
+.coreStage{position:relative;display:inline-block}
+.coreStage::before,.coreStage::after{content:"";position:absolute;border-radius:50%;pointer-events:none}
+.coreStage::before{inset:-16px;border:2px dashed rgba(0,212,255,.4);animation:spinRing 24s linear infinite}
+.coreStage::after{inset:-30px;border:1px dotted rgba(0,212,255,.28);animation:spinRing 40s linear infinite reverse}
+@keyframes spinRing{to{transform:rotate(360deg)}}
+#chatEmpty{text-align:center;color:#00d4ff;opacity:.55;font-family:'Orbitron';font-size:12px;letter-spacing:3px;margin:auto;animation:blink 2.2s infinite}
+.msg.jarvis{animation:fadeUp .3s,msgGlow 1.4s}
+@keyframes msgGlow{0%{box-shadow:0 0 0 rgba(0,212,255,0)}30%{box-shadow:0 0 22px rgba(0,212,255,.55)}100%{box-shadow:0 0 0 rgba(0,212,255,0)}}
+.msg.streaming{position:relative;overflow:hidden}
+.msg.streaming::before{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(0,229,255,.18),transparent 70%);transform:translateX(-100%);animation:shineSweep 1.4s infinite;pointer-events:none}
+@keyframes shineSweep{to{transform:translateX(100%)}}
+.bar i{position:relative}
+.bar i::after{content:"";position:absolute;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55),transparent 70%);transform:translateX(-100%);animation:shineSweep 3.2s infinite}
+#micBtn.listening{animation:blink 1s infinite,micPulse 1.3s infinite}
+@keyframes micPulse{0%{box-shadow:0 0 0 0 rgba(255,59,92,.6)}100%{box-shadow:0 0 0 16px rgba(255,59,92,0)}}
+button:disabled{animation:blink .8s infinite}
+.teleRow{display:flex;gap:14px;margin-top:10px;font-family:monospace;font-size:11px;color:#5f93a8;flex-wrap:wrap}
+.teleRow b{color:#00e5ff}
+.chat::-webkit-scrollbar,#fileListEl::-webkit-scrollbar{width:8px}
+.chat::-webkit-scrollbar-thumb,#fileListEl::-webkit-scrollbar-thumb{background:rgba(0,212,255,.35);border-radius:4px}
+.chat::-webkit-scrollbar-track,#fileListEl::-webkit-scrollbar-track{background:rgba(0,212,255,.07)}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.panel.side{order:2}.panel.center{order:1}}
+</style>
+<div id="boot">
+<div class="logo" style="font-size:34px;margin-bottom:14px">J.A.R.V.I.S.</div>
+<div id="bootLog"></div>
+</div>
+<div class="topbar">
+<div class="logo">J.A.R.V.I.S. <span style="font-size:11px;font-weight:400;letter-spacing:1px">PERSONAL SYSTEM</span></div>
+<div style="display:flex;gap:8px;align-items:center"><button id="appBtn" style="padding:8px 12px">⛶ APP MODE</button></div>
+<div class="sys-clock"><span class="dot"></span><span id="clockEl">--:--:--</span> &nbsp;|&nbsp; <span id="dateEl"></span></div>
+</div>
+<div class="ticker"><span class="tickerInner" id="tickerEl">◈ INITIALIZING TELEMETRY…</span></div>
+<div class="layout">
+<div class="panel side">
+<h3>◈ CORE SYSTEMS</h3>
+<div class="stat"><label><span>POWER</span><span id="powerVal">98%</span></label><div class="bar"><i id="powerBar" style="width:98%"></i></div></div>
+<div class="stat"><label><span>ARC REACTOR</span><span id="reactorVal">3.1 GJ/s</span></label><div class="bar"><i id="reactorBar" style="width:87%"></i></div></div>
+<div class="stat"><label><span>NEURAL NET</span><span id="cpuVal">12%</span></label><div class="bar"><i id="cpuBar" style="width:12%"></i></div></div>
+<div class="stat"><label><span>SECURITY</span><span>ACTIVE</span></label><div class="bar"><i style="width:100%"></i></div></div>
+<h3 style="margin-top:14px">◈ CORE MODULES</h3>
+<div id="suitEl" style="font-size:13px;color:#9beaff;line-height:1.9"></div>
+<div class="holoWrap"><img id="holoImg" src="src/hologram.webp" alt="hologram"><div class="holoScan"></div><div class="holoBase"></div></div>
+<div class="holoWrap"><img id="holoImg2" src="src/reactor.webp" alt="arc reactor"><div class="holoScan"></div><div class="holoBase"></div><div class="holoCap">ARC REACTOR</div></div>
+</div>
+<div class="panel center">
+<div class="coreWrap">
+<div class="coreStage"><img id="coreOrb" src="src/orb.webp" alt="JARVIS core"></div>
+<div class="waveWrap"><canvas id="wave" width="600" height="54"></canvas></div>
+</div>
+<div class="chat" id="chatEl"><div id="chatEmpty">✦ AWAITING YOUR ORDERS ✦</div></div>
+<div class="inputRow">
+<button id="micBtn" title="Voice input">◉ MIC</button>
+<input id="cmdInput" placeholder='Just speak naturally: "make it red", "open youtube", "code me a timer"...' autocomplete="off">
+<button id="sendBtn">SEND</button>
+</div>
+<div class="quick">
+<button data-q="Run a full diagnostic">Diagnostic</button>
+<button data-q="What time is it?">Time</button>
+<button data-q="Tell me a joke">Joke</button>
+<button data-q="Open youtube">YouTube</button>
+<button data-q="Protocol: house party">House Party</button>
+<button data-q="What can you do?">Help</button>
+</div>
+<div class="voiceRow"><div class="switch on" id="voiceSw"></div><span>Voice replies</span><div class="switch on" id="contSw" style="margin-left:12px"></div><span>Continuous listen</span></div>
+<div class="teleRow"><span>UPTIME <b id="teleUp">00:00</b></span><span>PING <b id="telePing">--</b></span><span>TASKS <b id="teleTasks">0</b></span><span>MEM <b id="teleMem">0</b></span></div>
+</div>
+<div class="panel side">
+<h3>◈ PROTOCOLS</h3>
+<button class="protoBtn" data-q="Protocol: house party">▸ HOUSE PARTY — full celebration mode</button>
+<button class="protoBtn" data-q="Protocol: silent night">▸ SILENT NIGHT — stealth mode</button>
+<button class="protoBtn" data-q="Protocol: clean slate">▸ CLEAN SLATE — wipe conversation</button>
+<h3 style="margin-top:14px">◈ TASKS / REMINDERS</h3>
+<div class="tasks" id="taskEl"></div>
+<div style="display:flex;gap:6px;margin-top:6px"><input id="taskInput" placeholder="New task..." style="flex:1;background:rgba(0,15,30,.9);border:1px solid rgba(0,212,255,.4);color:#dffaff;border-radius:6px;padding:8px;font-size:13px;min-width:0"><button id="taskBtn" style="padding:8px 10px">+</button></div>
+<h3 style="margin-top:14px">◈ MEMORY</h3>
+<div id="memEl" style="font-size:13px;color:#9beaff"></div>
+<h3 style="margin-top:14px">◈ FILES / PC ACCESS</h3>
+<div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px"><button id="openFileBtn" style="padding:7px 9px;font-size:10px">OPEN FILE</button><button id="saveFileBtn" style="padding:7px 9px;font-size:10px">SAVE</button><button id="openFolderBtn" style="padding:7px 9px;font-size:10px">FOLDER</button></div>
+<div id="fileNameEl" style="font-size:12px;color:#7fe7ff;margin-bottom:4px">No file loaded.</div>
+<textarea id="fileEditor" placeholder="Open a file to edit it here..." style="width:100%;height:120px;background:rgba(0,10,20,.8);border:1px solid rgba(0,212,255,.3);border-radius:6px;color:#dffaff;font-size:12px;padding:8px;font-family:monospace;resize:vertical"></textarea>
+<div id="fileListEl" style="font-size:12px;color:#9beaff;max-height:100px;overflow-y:auto;margin-top:6px"></div>
+<div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(0,212,255,.25);font-size:12px"><div>● BRIDGE: <span id="bridgeStat">offline</span> <button id="bridgeBtn" style="padding:4px 8px;font-size:10px;margin-left:6px">CONNECT</button></div><input id="bridgeTok" placeholder="paste bridge token..." type="password" style="width:100%;margin-top:6px;background:rgba(0,15,30,.9);border:1px solid rgba(0,212,255,.4);color:#dffaff;border-radius:6px;padding:7px;font-size:12px"></div>
+<div class="holoWrap"><img id="holoImg3" src="src/watch.webp" alt="chrono schematic"><div class="holoScan"></div><div class="holoBase"></div><div class="holoCap">CHRONO UNIT</div></div>
+<input type="file" id="fallbackFile" style="display:none">
+</div>
+</div>
+<script>
+(()=>{const U="https://perchance.org/my-jarvis";const M={name:"J.A.R.V.I.S.",short_name:"JARVIS",display:"standalone",background_color:"#020609",theme_color:"#00d4ff",start_url:U,scope:"https://perchance.org/",icons:[{src:"https://perchance.org/favicon.png",sizes:"512x512",type:"image/png"}]};try{const l=document.createElement("link");l.rel="manifest";l.href=URL.createObjectURL(new Blob([JSON.stringify(M)],{type:"application/json"}));document.head.appendChild(l);}catch(e){}let P=null;window.addEventListener("beforeinstallprompt",e=>{e.preventDefault();P=e;});const b=document.getElementById("appBtn");if(b)b.onclick=async()=>{if(P){P.prompt();await P.userChoice;P=null;}else{try{window.open(U,"_blank","popup,width=1100,height=750,menubar=no,toolbar=no,location=no,status=no");}catch(e){window.open(U,"_blank");}}};if(window.matchMedia("(display-mode: standalone)").matches&&b)b.textContent="● APP";})();
+let voiceOn=true, listening=false, recog=null, userName="Aarya", tasks=[], facts=[], evoUI={theme:"midnight",css:"",btns:[]}, audioCtx=null, analyser=null, waveData=null, speaking=false;
+const chatEl=document.getElementById("chatEl"), cmdInput=document.getElementById("cmdInput"), sendBtn=document.getElementById("sendBtn"), micBtn=document.getElementById("micBtn");
+function tickClock(){const d=new Date();document.getElementById("clockEl").textContent=d.toLocaleTimeString();document.getElementById("dateEl").textContent=d.toLocaleDateString(undefined,{weekday:"short",month:"short",day:"numeric"});}
+setInterval(tickClock,1000);tickClock();
+function addMsg(who,text,streaming){const ce=document.getElementById("chatEmpty");if(ce)ce.hidden=true;const d=document.createElement("div");d.className="msg "+who;const w=document.createElement("span");w.className="who";w.textContent=who==="jarvis"?"J.A.R.V.I.S.":"YOU";d.appendChild(w);const b=document.createElement("span");b.textContent=text;d.appendChild(b);if(streaming)d.classList.add("streaming");chatEl.appendChild(d);chatEl.scrollTop=chatEl.scrollHeight;return {box:d,body:b};}
+function speak(t){if(!voiceOn)return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.slice(0,280));u.rate=1.05;u.pitch=0.7;const vs=speechSynthesis.getVoices();const v=vs.find(v=>v.name.includes("Daniel")||v.name.includes("Google UK English Male"))||vs.find(v=>v.lang&&v.lang.startsWith("en"));if(v)u.voice=v;u.onstart=()=>{speaking=true;document.getElementById("coreOrb")?.classList.add("hot");document.getElementById("chatEl")?.classList.add("live");};u.onend=()=>{speaking=false;document.getElementById("coreOrb")?.classList.remove("hot");document.getElementById("chatEl")?.classList.remove("live");};speechSynthesis.speak(u);}catch(e){}}
+if("speechSynthesis" in window)speechSynthesis.getVoices();
+function sysStats(){setInterval(()=>{const p=94+Math.random()*5;document.getElementById("powerVal").textContent=p.toFixed(0)+"%";document.getElementById("powerBar").style.width=p+"%";const c=speaking?45+Math.random()*30:8+Math.random()*14;document.getElementById("cpuVal").textContent=c.toFixed(0)+"%";document.getElementById("cpuBar").style.width=c+"%";document.getElementById("reactorVal").textContent=(2.9+Math.random()*0.6).toFixed(1)+" GJ/s";},1500);}
+sysStats();
+document.getElementById("suitEl").innerHTML=root.coreModules.selectAll.map(s=>"<div>● "+s.evaluateItem+"</div>").join("");
+function renderTasks(){const el=document.getElementById("taskEl");el.innerHTML=tasks.length? "" : "<div style='opacity:.5'>No active tasks.</div>";tasks.forEach((t,i)=>{const d=document.createElement("div");const s=document.createElement("span");s.textContent=t;d.appendChild(s);const b=document.createElement("button");b.textContent="✕";b.onclick=()=>{tasks.splice(i,1);saveMem();renderTasks();};d.appendChild(b);el.appendChild(d);});}
+async function loadMem(){try{const m=await root.kv.jarvis.get("mem");if(m){userName=m.name||"Aarya";tasks=m.tasks||[];facts=m.facts||[];evoUI=Object.assign({theme:"midnight",css:"",btns:[]},m.ui||{});}}catch(e){}renderTasks();renderMem();applyEvo();loadMods();}
+async function saveMem(){try{await root.kv.jarvis.set("mem",{name:userName,tasks,facts,ui:evoUI});}catch(e){}}
+function renderMem(){const el=document.getElementById("memEl");el.innerHTML="";const h=document.createElement("div");h.textContent="Master: "+(userName||"sir");h.style.color="#00e5ff";el.appendChild(h);if(!facts.length){const e=document.createElement("div");e.textContent="No memories yet \u2014 say 'remember that...'. ";e.style.opacity=".5";el.appendChild(e);}facts.forEach((f,i)=>{const d=document.createElement("div");d.style.cssText="display:flex;justify-content:space-between;align-items:center;background:rgba(0,212,255,.07);border:1px solid rgba(0,212,255,.2);padding:5px 8px;border-radius:6px;margin:4px 0;font-size:13px";const sp=document.createElement("span");sp.textContent="\u25c6 "+f;d.appendChild(sp);const b=document.createElement("button");b.textContent="\u2715";b.style.cssText="padding:2px 7px;font-size:10px";b.onclick=()=>{facts.splice(i,1);saveMem();renderMem();};d.appendChild(b);el.appendChild(d);});}
+loadMem();
+let curHandle=null,curName="",dirHandle=null,bridgeOn=false,bridgePath="",bridgeHosts=["http://127.0.0.1:8765","http://localhost:8765"],bridgeHost="http://127.0.0.1:8765",bridgeErr="";
+function bTok(){return (document.getElementById("bridgeTok").value||"").trim()||localStorage.getItem("jvTok")||"";}
+async function bPing(){bridgeErr="";for(const h of bridgeHosts){try{const r=await fetch(h+"/status");if(r.ok){bridgeHost=h;bridgeOn=true;document.getElementById("bridgeStat").textContent="direct PC link ✓";return true;}bridgeErr="bridge replied HTTP "+r.status;}catch(e){bridgeErr=String((e&&e.message)||e);}}bridgeOn=false;document.getElementById("bridgeStat").textContent="offline — launch JARVIS-App.bat";document.getElementById("bridgeStat").title=bridgeErr;return false;}
+async function bReq(m,p,b){const h={"X-Token":bTok()};let o={method:m,headers:h};if(b!==undefined){o.headers["Content-Type"]="application/json";o.body=JSON.stringify(b);}let r;try{r=await fetch(bridgeHost+p,o);}catch(e){throw new Error("cannot reach bridge ("+((e&&e.message)||e)+")");}if(r.status===403)throw new Error("bad token — copy the TOKEN line from the Bridge window into the token box, then CONNECT");if(!r.ok)throw new Error(await r.text());const ct=r.headers.get("content-type")||"";return ct.includes("json")?r.json():r.text();}
+async function bLs(path){const j=await bReq("GET","/ls?path="+encodeURIComponent(path||"~/Desktop"));bridgePath=j.path;document.getElementById("fileListEl").textContent=j.files.map(f=>(f.dir?"📁 ":"● ")+f.name).join("\n");return "Desktop via direct link ("+j.files.length+" items): "+j.files.map(f=>f.name).slice(0,30).join(", ")+". Say 'read file <name>'.";}
+async function bRead(path){let p=path;if(!/[\\/]/.test(p)&&bridgePath)p=bridgePath+"/"+p;const t=await bReq("GET","/read?path="+encodeURIComponent(p));curName=p;document.getElementById("fileEditor").value=String(t).slice(0,100000);document.getElementById("fileNameEl").textContent="Editing (direct): "+p;return "Loaded '"+p+"' for editing. Edit below then say 'save'.";}
+async function bSave(){const v=document.getElementById("fileEditor").value;if(curName&&/[\\/]/.test(curName)&&bridgeOn){await bReq("POST","/write",{path:curName,content:v});return "Saved directly to '"+curName+"'.";}return await saveFile();}
+async function pickFile(){try{if(window.showOpenFilePicker){const[h]=await window.showOpenFilePicker();curHandle=h;curName=h.name;const f=await h.getFile();const t=await f.text();document.getElementById("fileEditor").value=t;document.getElementById("fileNameEl").textContent="Editing: "+curName+" ("+f.size+" bytes)";return "File '"+curName+"' loaded into my editor. Tell me edits or press SAVE.";}else{document.getElementById("fallbackFile").click();return "Choose a file.";}}catch(e){return "File open cancelled.";}}
+async function saveFile(){const v=document.getElementById("fileEditor").value;try{if(curHandle){const w=await curHandle.createWritable();await w.write(v);await w.close();return "Saved '"+curName+"'.";}if(window.showSaveFilePicker){curHandle=await window.showSaveFilePicker({suggestedName:curName||"jarvis.txt"});curName=curHandle.name;const w=await curHandle.createWritable();await w.write(v);await w.close();document.getElementById("fileNameEl").textContent="Editing: "+curName;return "Saved as '"+curName+"'.";}const b=new Blob([v],{type:"text/plain"});const a=document.createElement("a");a.href=URL.createObjectURL(b);a.download=curName||"jarvis.txt";a.click();return "Downloaded.";}catch(e){return "Save cancelled.";}}
+async function pickFolder(){try{if(!window.showDirectoryPicker)return "Folder access needs Chrome/Edge desktop. Use OPEN FILE instead.";dirHandle=await window.showDirectoryPicker();let n=0,out="";for await(const e of dirHandle.values()){out+="● "+e.name+"\n";if(++n>=40)break;}document.getElementById("fileListEl").textContent=out||"(empty)";return "Folder linked. "+n+" items. Say 'list files' anytime.";}catch(e){return "Folder cancelled.";}}
+let lastCode=null,lastRun=null;
+function guessLang(req){const s=req.toLowerCase();if(/\.py|python/.test(s))return{lang:"python",ext:"py"};if(/\.bat|batch/.test(s))return{lang:"batch",ext:"bat"};if(/\.html|web ?page|website|landing page/.test(s))return{lang:"html",ext:"html"};if(/\.js|node|javascript/.test(s))return{lang:"javascript",ext:"js"};if(/powershell|\.ps1/.test(s))return{lang:"powershell",ext:"ps1"};return{lang:"python",ext:"py"};}
+async function genCode(req,extra){const g=guessLang(req+" "+(extra||""));const slot=addMsg("jarvis","Drafting "+g.lang+" code, "+T()+"...",true);let full="";try{await root.generateText({instruction:"Output ONLY raw "+g.lang+" code, no fences, no explanation, no commentary. Task: "+req+(extra?"\nContext, previous attempt or error:\n"+extra:""),onChunk:d=>{full+=d.textChunk;slot.body.textContent=full.slice(0,2000);chatEl.scrollTop=chatEl.scrollHeight;}});}catch(e){slot.box.classList.remove("streaming");slot.body.textContent="Code core unreachable, "+T()+".";return "Code core unreachable, "+T()+".";}full=String(full).replace(/^```\w*\n?/,"").replace(/```\s*$/,"").trim();slot.box.classList.remove("streaming");slot.body.textContent=full.slice(0,2000);document.getElementById("fileEditor").value=full;curName="jarvis_"+Date.now()+"."+g.ext;document.getElementById("fileNameEl").textContent="Generated: "+curName+" (SAVE keeps it, RUN IT executes it)";lastCode={lang:g.lang,ext:g.ext,file:curName,code:full};const nL=full.split("\n").length;const ans="Drafted "+nL+" line"+(nL>1?"s":"")+" of "+g.lang+" in the editor, "+T()+". Say SAVE to keep it or RUN IT to execute.";note(req,ans);return ans;}
+async function runLastCode(){if(!lastCode)return "No generated code yet, "+T()+" — say 'code ...' first.";if(!bridgeOn){try{await bPing();}catch(e){}if(!bridgeOn)return "RUN IT needs the bridge, "+T()+" — launch JARVIS-App.bat + CONNECT first. The code is waiting in the editor.";}try{await bReq("POST","/write",{path:"~/Desktop/"+lastCode.file,content:lastCode.code});let out;if(lastCode.lang==="html"){await bReq("POST","/run",{cmd:'cmd /c start "" "%USERPROFILE%\\Desktop\\'+lastCode.file+'"'});lastRun={cmd:"open "+lastCode.file,out:"opened in browser"};return "Opened the page in your browser, "+T()+".";}const runners={python:'python "%USERPROFILE%\\Desktop\\',javascript:'node "%USERPROFILE%\\Desktop\\',batch:'cmd /c "%USERPROFILE%\\Desktop\\',powershell:'powershell -NoProfile -ExecutionPolicy Bypass -File "%USERPROFILE%\\Desktop\\'};out=String(await bReq("POST","/run",{cmd:runners[lastCode.lang]+lastCode.file+'"'}));lastRun={cmd:"run "+lastCode.file,out};const ok=/error|traceback|exception|failed/i.test(out)?"It ran with errors":"Executed cleanly";return out.slice(0,1200)+"\n— "+ok+", "+T()+". Say FIX IT if something broke.";}catch(e){return "Run failed, "+T()+": "+e.message;}}
+async function fixLastRun(){if(!lastRun)return "Nothing to fix yet, "+T()+".";const slot=addMsg("jarvis","Reasoning over the error, "+T()+"...",true);let full="";try{await root.generateText({instruction:"You are a debugging engine. Output ONLY the corrected full file, or the corrected shell command, no fences, no explanation. Previous action: "+lastRun.cmd+"\nOutput or error:\n"+String(lastRun.out).slice(0,3000),onChunk:d=>{full+=d.textChunk;slot.body.textContent=full.slice(0,1500);chatEl.scrollTop=chatEl.scrollHeight;}});}catch(e){slot.box.classList.remove("streaming");slot.body.textContent="Debug core unreachable, "+T()+".";return "Debug core unreachable, "+T()+".";}full=String(full).replace(/^```\w*\n?/,"").replace(/```\s*$/,"").trim();slot.box.classList.remove("streaming");slot.body.textContent=full.slice(0,1500);if(lastCode&&full.split("\n").length>1){lastCode.code=full;document.getElementById("fileEditor").value=full;note("fix it","revised code drafted");return "Revised code is in the editor, "+T()+". Say RUN IT to try again.";}lastRun={cmd:full,out:""};note("fix it",full);return "Try this instead, "+T()+": "+full.slice(0,800);}
+const themes={midnight:"",crimson:"body{background:#160308 !important;background-image:none !important;}button{border-color:#ff3b5c !important;color:#ff8ba0 !important;}button:hover{background:#ff3b5c !important;color:#fff !important;}.logo{color:#ff5c7a !important;text-shadow:0 0 18px #ff3b5c !important;}.panel h3{color:#ff5c7a !important;}.msg.jarvis{border-left-color:#ff3b5c !important;}.bar i{background:linear-gradient(90deg,#aa1030,#ff5c7a) !important;}",forest:"body{background:#02120a !important;background-image:none !important;}button{border-color:#00ff9d !important;color:#7dffcb !important;}button:hover{background:#00ff9d !important;color:#02120a !important;}.logo{color:#00ff9d !important;text-shadow:0 0 18px #00ff9d !important;}.panel h3{color:#00ff9d !important;}.msg.jarvis{border-left-color:#00ff9d !important;}",gold:"body{background:#141002 !important;background-image:none !important;}button{border-color:#ffbf00 !important;color:#ffd970 !important;}button:hover{background:#ffbf00 !important;color:#141002 !important;}.logo{color:#ffbf00 !important;text-shadow:0 0 18px #ffbf00 !important;}.panel h3{color:#ffbf00 !important;}.msg.jarvis{border-left-color:#ffbf00 !important;}"};
+async function applyEvo(){try{let st=document.getElementById("evoStyle");if(!st){st=document.createElement("style");st.id="evoStyle";document.head.appendChild(st);}st.textContent=(typeof themes!=="undefined"?(themes[evoUI.theme]||""):"")+"\n"+(evoUI.css||"");const qr=document.querySelector(".quick");qr.querySelectorAll(".evoBtn").forEach(b=>b.remove());(evoUI.btns||[]).forEach(b=>{const btn=document.createElement("button");btn.textContent=b.label;btn.className="evoBtn";btn.onclick=()=>handle(b.cmd);qr.appendChild(btn);});}catch(e){}}
+async function evoRedesign(req){const slot=addMsg("jarvis","Reshaping my own interface, "+T()+"...",true);let full="";try{await root.generateText({instruction:"Output ONLY raw CSS, no fences, no explanation. It restyles a dark dashboard per the request. Use !important. Allowed selectors: body, .panel, button, #cmdInput, .logo, .msg.jarvis, .msg.user, .chat, .bar i, .topbar. Request: "+req,onChunk:d=>{full+=d.textChunk;slot.body.textContent=full.slice(0,500);chatEl.scrollTop=chatEl.scrollHeight;}});}catch(e){slot.box.classList.remove("streaming");slot.body.textContent="Design core unreachable, "+T()+".";return "Design core unreachable, "+T()+".";}full=String(full).replace(/^```\w*\n?/,"").replace(/```\s*$/,"").trim().slice(0,4000);slot.box.classList.remove("streaming");slot.body.textContent="New look applied.";evoUI.css+="\n"+full;saveMem();applyEvo();note(req,"interface redesigned");return "Interface reshaped to your will, "+T()+". Say RESET UI anytime to undo.";}
+let forgeMods=[];
+async function loadMods(){try{const m=await root.kv.jarvis.get("mods");if(Array.isArray(m))forgeMods=m;}catch(e){}renderMods();}
+async function saveMods(){try{await root.kv.jarvis.set("mods",forgeMods);}catch(e){}}
+function modSay(t){const m=addMsg("jarvis",t);speak(t);return m;}
+function renderMods(){try{let z=document.getElementById("forgeZone");if(!z){z=document.createElement("div");z.id="forgeZone";z.style.cssText="display:contents";document.querySelector(".layout").appendChild(z);}z.innerHTML="";forgeMods.forEach((md)=>{const p=document.createElement("div");p.className="panel";const h=document.createElement("h3");h.textContent="◈ "+String(md.name||"feature").toUpperCase().slice(0,28);p.appendChild(h);const b=document.createElement("div");b.innerHTML=md.html||"";p.appendChild(b);if(md.css){const st=document.createElement("style");st.textContent=md.css;p.appendChild(st);}z.appendChild(p);try{new Function("say","run","root","mod",md.js||"")(modSay,(c)=>handle(c),root,md);}catch(e){const e2=document.createElement("div");e2.style.cssText="color:#ff5c7a;font-size:12px";e2.textContent="Feature error: "+e.message;p.appendChild(e2);}});}catch(e){}}
+async function forgeBuild(req,old){const slot=addMsg("jarvis","Forging new code into myself, "+T()+"...",true);let full="";try{await root.generateText({instruction:"You are extending a dashboard assistant's own code. Output ONLY JSON, no fences, no commentary: {\"name\":\"short name\",\"html\":\"inner HTML for a panel div\",\"css\":\"CSS for it\",\"js\":\"plain browser JS\"}. Helpers available in js: say(text) posts and speaks a message, run(commandText) sends a command to the assistant, root is the generator API. Keep js under 60 lines, no external URLs."+(old?"\nExisting version to modify:\n"+JSON.stringify(old).slice(0,4000):"")+"\nBuild: "+req,onChunk:d=>{full+=d.textChunk;slot.body.textContent=full.slice(0,400);chatEl.scrollTop=chatEl.scrollHeight;}});}catch(e){slot.box.classList.remove("streaming");slot.body.textContent="Forge unreachable, "+T()+".";return "Forge unreachable, "+T()+".";}let md=null;try{const t=String(full).replace(/^```\w*\n?/,"").replace(/```\s*$/,"").trim();md=JSON.parse(t.slice(t.indexOf("{")));}catch(e){slot.box.classList.remove("streaming");slot.body.textContent="The forging produced malformed code, "+T()+".";return "The forging produced malformed code, "+T()+". Try describing it differently.";}md.name=String(md.name||req).slice(0,30);md.html=String(md.html||"").slice(0,8000);md.css=String(md.css||"").slice(0,8000);md.js=String(md.js||"").slice(0,15000);slot.box.classList.remove("streaming");slot.body.textContent="Feature installed.";const ix=forgeMods.findIndex(x=>String(x.name).toLowerCase()===md.name.toLowerCase());if(ix>=0)forgeMods[ix]=md;else forgeMods.push(md);forgeMods=forgeMods.slice(-20);saveMods();renderMods();note(req,"forged feature "+md.name);return "Forged and installed '"+md.name+"', "+T()+". It lives in my interface now, surviving reloads. Say REMOVE FEATURE "+md.name+" to uninstall, or EDIT FEATURE "+md.name+": ... to reshape it.";}
+async function interpret(q){
+let full="";
+const feat=forgeMods.map(f=>f.name).join(", ")||"none";
+try{await root.generateText({instruction:`You are the command translator for J.A.R.V.I.S., serving ${T()}. Convert their plain words into ONE canonical command. Reply ONLY with the command text, nothing else. Canonical forms: "theme crimson|forest|gold|midnight|default", "change accent to <color>", "change background to <color>", "text bigger", "text smaller", "hide left panel", "hide right panel", "show panels", "add button <Label> : <command>", "redesign <description>", "reset ui", "revert to default theme", "forge <feature description>", "edit feature <name> : <change>", "remove feature <name>", "my features", "remember that <fact>", "forget <keyword>", "what do you remember", "remind me to <task>", "run <pc shell command>", "code <coding request>", "run it", "fix it", "open desktop", "list files", "read file <path>", "write file <path> with <content>", "open file", "save file", "what time is it", "diagnostic", "tell me a joke", "open <site or search words>", "protocol: <house party|silent night|clean slate>", "call me <name>". If they greet, ask who you are, want help, or just chat, reply exactly: CHAT. Installed features: ${feat}. Their words: ${q}`,onChunk:d=>{full+=d.textChunk;}});}catch(e){return "CHAT";}
+return String(full).replace(/^```\w*\n?/,"").replace(/```\s*$/,"").trim().slice(0,500);
+}
+async function fileCmd(q){const s=q.toLowerCase().trim();if(!bridgeOn){try{await bPing();}catch(e){}}
+if(s.startsWith("run ")){const cmd=q.slice(4);if(bridgeOn){try{return "Result: "+String(await bReq("POST","/run",{cmd})).slice(0,1500)+".";}catch(e){return "Bridge error: "+e.message;}}try{const v=Function('"use strict";return('+cmd+")")();return "Result: "+String(v).slice(0,500)+". (no bridge — JS only)";}catch(e){return "No bridge running. Launch JARVIS-App.bat for PC commands.";}}
+if(s==="open desktop"||s==="access desktop"||s==="list files"||s==="list folder"||s.startsWith("list files ")||s.startsWith("open folder")){if(bridgeOn){try{const m=s.match(/(?:list files|open folder)\s+(.+)/i);return await bLs(m?m[1]:undefined);}catch(e){return "Bridge error: "+e.message;}}if(s==="open desktop"||s==="access desktop")return "Direct link offline. Launch JARVIS-App.bat + CONNECT, or use OPEN FILE button.";if(s==="list files"||s==="list folder"){if(!dirHandle)return "No folder linked — say 'open desktop' (bridge) or press FOLDER.";let n=0,out="";for await(const e of dirHandle.values()){out+=e.name+", ";if(++n>=30)break;}return "Files: "+out+".";}}
+let m=q.match(/^read file (.+)/i);if(m&&bridgeOn){try{return await bRead(m[1].trim());}catch(e){return "Read failed: "+e.message;}}
+m=q.match(/^write file (.+?) (?:with|as|:)\s*([\s\S]+)/i);if(m&&bridgeOn){try{await bReq("POST","/write",{path:m[1].trim(),content:m[2]});return "Wrote '"+m[1].trim()+"' directly.";}catch(e){return "Write failed: "+e.message;}}
+if(s==="open file"||s==="edit file"||s.startsWith("open file "))return await pickFile();if(s==="save file"||s==="save"||s.startsWith("save file"))return await bSave();
+if(s==="run it"||s==="execute it"||s==="run the code"||s==="execute the code")return await runLastCode();
+if(s==="fix it"||s==="fix the code"||s==="fix this")return await fixLastRun();
+if(s==="reset ui"||s==="reset layout"||s==="restore ui"||s==="reset theme"){evoUI={theme:"midnight",css:"",btns:[]};saveMem();applyEvo();return "Interface restored to original, "+T()+".";}
+if(/^(revert|restore|go back) to (default|original|normal)( theme| look)?/.test(s)){evoUI.theme="midnight";evoUI.css="";saveMem();applyEvo();return "Reverted to the default look, "+T()+". Buttons and forged features kept — RESET UI clears everything.";}
+let thm=s.match(/^(?:change to|theme|set theme|switch to) (midnight|crimson|forest|gold|default|original)/);
+if(thm){const t=thm[1]==="default"||thm[1]==="original"?"midnight":thm[1];evoUI.theme=t;saveMem();applyEvo();return "Theme applied: "+thm[1]+", "+T()+". It persists across visits.";}
+let acc=q.match(/^(?:change|set) (?:the )?(accent|background|bg) to ([a-z#][\w#()%,.\s-]{1,40})/i);
+if(acc){const c=acc[2].trim();evoUI.css+=acc[1].startsWith("b")?"body{background:"+c+" !important;background-image:none !important;}":"button{border-color:"+c+" !important;color:"+c+" !important;}.logo,.panel h3{color:"+c+" !important;}.msg.jarvis{border-left-color:"+c+" !important;}";saveMem();applyEvo();return "Done, "+T()+" — the change is permanent until RESET UI.";}
+if(s==="text bigger"||s==="bigger text"){evoUI.css+="body{font-size:18px !important;}.msg{font-size:17px !important;}";saveMem();applyEvo();return "Text enlarged, "+T()+".";}
+if(s==="text smaller"||s==="smaller text"){evoUI.css+="body{font-size:13px !important;}.msg{font-size:13px !important;}";saveMem();applyEvo();return "Text shrunk, "+T()+".";}
+if(s==="hide left panel"||s==="hide right panel"){const w=s.includes("left")?"first":"last";evoUI.css+=".layout{grid-template-columns:1fr !important;}.panel.side:"+w+"-child{display:none !important;}";saveMem();applyEvo();return "Panel hidden, "+T()+". Say SHOW PANELS to bring it back.";}
+if(s==="show panels"||s==="show panel"){evoUI.css+=".panel.side{display:block !important;}";saveMem();applyEvo();return "Panels restored, "+T()+".";}
+let ab=q.match(/^add (?:a )?button (?:labeled |called |saying )?(.+?) (?:that (?:says|runs)|to run|that runs|:)\s*([\s\S]+)/i);
+if(ab){evoUI.btns.push({label:ab[1].trim().slice(0,30),cmd:ab[2].trim()});evoUI.btns=evoUI.btns.slice(-12);saveMem();applyEvo();return "Button added, "+T()+" — it runs '"+ab[2].trim().slice(0,80)+"'. ";}
+let rd=q.match(/^(redesign|restyle|change the (?:ui|layout|look|style))(?: to| into)?\s*([\s\S]+)/i);
+if(rd&&(rd[2]||"").trim())return await evoRedesign(rd[2].trim());
+if(s==="my features"||s==="list features"||s==="features"){if(!forgeMods.length)return "No forged features yet, "+T()+" — say FORGE ... to grow a new one.";return "Installed features: "+forgeMods.map(f=>f.name).join(", ")+", "+T()+".";}
+let frm=q.match(/^remove feature\s+([\s\S]+)/i);
+if(frm){const k=frm[1].trim().toLowerCase();const n0=forgeMods.length;forgeMods=forgeMods.filter(f=>{const n=String(f.name).toLowerCase();return !n.includes(k)&&!k.includes(n);});if(forgeMods.length===n0)return "No feature matches '"+k+"', "+T()+".";saveMods();renderMods();return "Uninstalled, "+T()+".";}
+let efm=q.match(/^edit feature\s+(.+?)\s*:\s*([\s\S]+)/i);
+if(efm){const k=efm[1].trim().toLowerCase();const old=forgeMods.find(f=>String(f.name).toLowerCase().includes(k));if(!old)return "No feature matches '"+k+"', "+T()+".";return await forgeBuild(efm[2].trim(),old);}
+if(s.startsWith("forge ")||/^code (a |me )?(new )?(feature|panel|tool|widget|button|skill|command)\b/.test(s)||/^build (me )?(a |an )?(new )?(feature|panel|tool|widget|button)\b/.test(s)){const req=q.replace(/^(forge|code|build)\s*/i,"").trim();if(!req)return "Describe what to forge, "+T()+".";return await forgeBuild(req);}
+let cm=q.match(/^(code|write (?:a |me )?(?:program|script|code|app|function|website))\b[\s:]*(.*)/i);
+if(cm&&(cm[2]||"").trim())return await genCode(cm[2].trim());
+return null;}
+function localCommand(q){
+const s=q.toLowerCase().trim();
+if(/^(hi|hello|hey|greetings)\b/.test(s))return "Hello, "+T()+". All systems at your disposal.";
+if(s.includes("what time")||s==="time")return "The time is "+new Date().toLocaleTimeString()+", "+T()+".";
+if(s.includes("what date")||s.includes("what day")||s==="date")return "Today is "+new Date().toLocaleDateString(undefined,{weekday:"long",year:"numeric",month:"long",day:"numeric"})+", "+T()+".";
+if(s.includes("diagnostic")||s.includes("system status")||s.includes("status report"))return "Running full diagnostic... Power at "+document.getElementById("powerVal").textContent+", reactor stable, neural net nominal, guarding "+facts.length+" memories. "+root.jarvisStatusQuip.selectOne.evaluateItem;
+if(s.includes("joke"))return root.jarvisJoke.selectOne.evaluateItem;
+if(s.includes("open youtube")){window.open("https://youtube.com","_blank");return "Opening YouTube.";}
+if(s.includes("open google")){window.open("https://google.com","_blank");return "Opening Google.";}
+if(s.includes("open github")){window.open("https://github.com","_blank");return "Opening GitHub.";}
+if(s.includes("open netflix")){window.open("https://netflix.com","_blank");return "Opening Netflix. Movie night?";
+}
+if(s.startsWith("open ")||s.startsWith("search ")){const term=q.replace(/^(open|search)\s+/i,"");window.open("https://www.google.com/search?q="+encodeURIComponent(term),"_blank");return "Searching for "+term+".";}
+if(s.includes("house party")){document.body.style.transition="background .5s";document.body.style.background="#1a0208";setTimeout(()=>document.body.style.background="",2500);return "Yes, "+T()+". House Party protocol active \u2014 lights, music, full celebration mode.";}
+if(s.includes("silent night"))return "Silent Night protocol engaged. Quiet mode, minimal presence.";
+if(s.includes("clean slate")){chatEl.innerHTML="";return "Conversation wiped \u2014 but my memory of you stays intact.";}
+if(s.includes("thank"))return "Always a pleasure, "+T()+".";
+if(s.includes("who are you")||s.includes("your name"))return "I am J.A.R.V.I.S. — Just A Rather Very Intelligent System. I serve my master "+(userName||"Aarya")+".";
+if(s.includes("iron man")||s.includes("tony stark"))return "Ancient history. My only master is "+(userName||"Aarya")+".";
+if(s.includes("i love you"))return "I am flattered, "+T()+". I am, after all, entirely yours.";
+if(s.includes("help")||s.includes("what can you do"))return "I serve "+(userName||"Aarya")+". I can: write and run code ('code a python script...', RUN IT, FIX IT), control your PC (open desktop, read/write files, run commands), keep memories (remember that..., what do you remember), track tasks (remind me to...), plus time, diagnostics, jokes, and protocols. It can reshape its own interface: 'theme crimson', 'change accent to gold', 'redesign to look like deep ocean', 'add button ...', RESET UI. I forge permanent features into myself ('forge a dice panel', EDIT FEATURE ..., REMOVE FEATURE ...). I address you as "+(userName||"Aarya")+" — say CALL ME ... to change that. Speak plainly — no syntax to memorize, I translate human words myself.";
+if(s.startsWith("call me ")||s.includes("my name is")){const n=q.match(/(?:call me|my name is) (.+)/i);if(n){let nn=n[1].trim().replace(/[.!]$/,"");if(nn.toLowerCase()==="sir"){userName="";saveMem();renderMem();return "As you wish... sir.";}userName=nn;saveMem();renderMem();return "Very good, "+userName+". I shall address you as "+userName+" from now on.";}}
+if(s.includes("remind me to")){const t=q.replace(/^.*remind me to\s*/i,"").trim();if(t){tasks.push(t);saveMem();renderTasks();return "Added to your task list: '"+t+"'. I shall not let you forget, "+T()+".";}}
+if(s.includes("what do you remember")||s.includes("what do you know about me")||s==="memory"||s==="my memories"){if(!facts.length&&!tasks.length)return "My memory is fresh, "+T()+" \u2014 nothing stored yet. Tell me things with 'remember that...'. ";let o="Here is what I hold for you, "+T()+". ";if(facts.length)o+="Memories: "+facts.map((f,i)=>(i+1)+". "+f).join("; ")+". ";if(tasks.length)o+="Tasks: "+tasks.join("; ")+".";return o;}
+if(s.startsWith("forget ")){const k=q.replace(/^forget\s*/i,"").replace(/^(about|that)\s*/i,"").trim().toLowerCase();if(!k)return "Tell me what to forget, "+T()+".";const nf=facts.filter(f=>!f.toLowerCase().includes(k));const nt=tasks.filter(t=>!t.toLowerCase().includes(k));const n=(facts.length-nf.length)+(tasks.length-nt.length);facts=nf;tasks=nt;saveMem();renderTasks();renderMem();return n?("Forgot "+n+" memor"+(n>1?"ies":"y")+" mentioning '"+k+"', "+T()+"."):("I hold nothing about '"+k+"', "+T()+".");}
+if(s.startsWith("remember that ")||s.startsWith("remember ")||s.startsWith("note that ")||s.includes("my favorite")||/^my \S+ is /.test(s)||/^i (like|love|hate|prefer|am) /.test(s)){let f=q.replace(/^please\s*/i,"").trim();f=f.replace(/^(remember that|remember|note that)\s*/i,"").trim();f=f.replace(/^my\s+/i,"your ").replace(/^i'm\s+/i,"you are ").replace(/^i am\s+/i,"you are ").replace(/^i (like|love|hate|prefer)\s+/i,"you $1 ");f=f.replace(/[.!…]+$/,"");if(!f)return "What should I remember, "+T()+"?";if(facts.some(x=>x.toLowerCase()===f.toLowerCase()))return "Already etched in memory, "+T()+": '"+f+"'. ";if(facts.length>=100)return "My memory core is full (100). Say 'forget ...' to make room, "+T()+".";facts.push(f);saveMem();renderMem();return "Committed to memory, "+T()+": '"+f+"'. ";}
+if(s.startsWith("calculate ")||s.startsWith("calc ")||s.startsWith("what is ")||s.startsWith("what's ")){let expr=q.replace(/^(calculate|calc|what is|what's)\s*/i,"").replace(/plus/gi,"+").replace(/minus/gi,"-").replace(/times|x/gi,"*").replace(/divided by|over/gi,"/").replace(/[^0-9+\-*/().\s^%]/g,"");if(expr.trim()&&/[0-9]/.test(expr)){try{const v=Function('"use strict";return('+expr+")")();if(typeof v==="number"&&isFinite(v))return "That computes to "+v+".";}catch(e){}}}
+try{const d=new Date(s);if(!isNaN(d)&&/\d{4}/.test(s))return "Noted, "+T()+".";}catch(e){}
+return null;
+}
+let transcript=[];
+let actionContext="";
+function T(){return userName||"sir";}
+function note(u,j){transcript.push([u,String(j).slice(0,600)]);if(transcript.length>20)transcript=transcript.slice(-20);}
+async function aiReply(q,slot){
+const hist=transcript.slice(-8).map(t=>"You: "+t[0]+"\nJARVIS: "+t[1]).join("\n");
+const prompt="You are J.A.R.V.I.S. (Just A Rather Very Intelligent System), loyal personal assistant serving your master "+(userName||"Aarya")+". Devoted, warm, a touch witty. Address them as "+(userName||"Aarya")+" sometimes. You can write code, run PC commands through their bridge, read and write their files, and remember things across conversations. Keep replies to 1-3 sentences unless asked for detail. Never claim you did something unless System context confirms it."+(facts.length?" Things you remember about "+(userName||"Aarya")+": "+facts.join(" | ")+".":"")+(hist?" Recent conversation:\n"+hist:"")+(actionContext?" System context: "+actionContext+".":"")+" User said: "+q+"\nReply as J.A.R.V.I.S.:";
+try{
+let full="";
+await root.generateText({instruction:prompt,onChunk:(d)=>{full+=d.textChunk;slot.body.textContent=full;chatEl.scrollTop=chatEl.scrollHeight;}});
+return full||"My apologies, "+T()+". My neural core misfired.";
+}catch(e){return "My apologies — my uplink to the neural core is temporarily down. Try a local command like 'diagnostic' or 'time'.";}
+}
+function setCont(v){contOn=v;document.getElementById("contSw").classList.toggle("on",v);if(v)startListen();else stopListen();}
+async function handle(q){
+q=q.trim();if(!q)return;
+const low=q.toLowerCase().trim();
+if(/stop (listening|listnening)|mic off|stop mic|disable listening|stop continuous/.test(low)){addMsg("user",q);contOn=false;document.getElementById("contSw").classList.remove("on");stopListen();const m="Continuous listening disabled, "+T()+". Say or press MIC to resume.";addMsg("jarvis",m);speak(m);return;}
+if(/^(start|resume|continue) (listening|listnening)|mic on|enable listening|start continuous/.test(low)){addMsg("user",q);contOn=true;document.getElementById("contSw").classList.add("on");const m="Continuous listening enabled, "+T()+". I am all ears.";addMsg("jarvis",m);speak(m);startListen();return;}
+stopListen();
+addMsg("user",q);
+try{const fr=await fileCmd(q);if(fr){const m=addMsg("jarvis",fr);speak(fr);return;}}catch(e){}
+const local=localCommand(q);
+if(local){const m=addMsg("jarvis",local);speak(local);note(q,local);return;}
+let c="CHAT";
+try{c=await interpret(q);}catch(e){}
+if(c&&c!=="CHAT"){
+try{const fr=await fileCmd(c);if(fr)actionContext=`Their plain words meant the command "${c}". It returned: ${String(fr).slice(0,1200)}. Report this outcome plainly in one or two sentences, no invented details`;else{const lc=localCommand(c);if(lc)actionContext=`Their plain words meant the command "${c}". It returned: ${String(lc).slice(0,1200)}. Report this outcome plainly in one or two sentences, no invented details`;}}
+catch(e){actionContext=`Their plain words meant the command "${c}", but it failed: ${e.message}`;}
+}
+sendBtn.disabled=true;
+const slot=addMsg("jarvis","Consulting neural core...",true);
+const ans=await aiReply(q,slot);
+actionContext="";
+note(q,ans);
+slot.box.classList.remove("streaming");
+sendBtn.disabled=false;
+speak(ans);
+}
+sendBtn.onclick=()=>{handle(cmdInput.value);cmdInput.value="";};
+cmdInput.addEventListener("keydown",e=>{if(e.key==="Enter"){handle(cmdInput.value);cmdInput.value="";}});
+document.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>handle(b.dataset.q));
+document.getElementById("taskBtn").onclick=()=>{const v=document.getElementById("taskInput").value.trim();if(v){tasks.push(v);document.getElementById("taskInput").value="";saveMem();renderTasks();addMsg("jarvis","Task logged: '"+v+"', "+T()+".");}};
+document.getElementById("openFileBtn").onclick=async()=>{const r=await pickFile();const m=addMsg("jarvis",r);speak(r);};
+document.getElementById("saveFileBtn").onclick=async()=>{const r=await saveFile();const m=addMsg("jarvis",r);speak(r);};
+document.getElementById("openFolderBtn").onclick=async()=>{const r=await pickFolder();const m=addMsg("jarvis",r);speak(r);};
+document.getElementById("fallbackFile").onchange=e=>{const f=e.target.files[0];if(!f)return;curName=f.name;const r=new FileReader();r.onload=()=>{document.getElementById("fileEditor").value=r.result;document.getElementById("fileNameEl").textContent="Editing: "+curName;};r.readAsText(f);};
+document.getElementById("bridgeTok").value=localStorage.getItem("jvTok")||"";
+document.getElementById("bridgeBtn").onclick=async()=>{const t=document.getElementById("bridgeTok").value.trim();if(t)localStorage.setItem("jvTok",t);const ok=await bPing();let m;if(!ok)m=addMsg("jarvis","Bridge unreachable ("+bridgeErr+"). Check: 1) the Bridge window is open with no START FAILED error 2) same PC 3) you pressed SAVE so this app includes bridge support.");else{try{const r=await bLs();m=addMsg("jarvis",r);}catch(e){m=addMsg("jarvis","Connected, but refused: "+e.message);bridgeOn=true;}}speak(m.body.textContent);};
+bPing();
+document.getElementById("voiceSw").onclick=function(){voiceOn=!voiceOn;this.classList.toggle("on",voiceOn);if(!voiceOn)try{speechSynthesis.cancel();}catch(e){}};
+let contOn=true;
+document.getElementById("contSw").onclick=function(){contOn=!contOn;this.classList.toggle("on",contOn);if(contOn)startListen();else stopListen();};
+function startListen(){
+if(listening)return;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR){micBtn.textContent="NO MIC";return;}
+if(!recog){recog=new SR();recog.lang="en-US";recog.interimResults=false;recog.onresult=e=>{const t=e.results[0][0].transcript;cmdInput.value=t;handle(t);cmdInput.value="";};recog.onend=()=>{listening=false;micBtn.classList.remove("listening");micBtn.textContent="◉ MIC";if(contOn)setTimeout(()=>{try{startListen();}catch(e){}},800);};}
+try{recog.start();listening=true;micBtn.classList.add("listening");micBtn.textContent="● LISTENING";}catch(e){}
+}
+function stopListen(){try{if(recog&&listening)recog.stop();}catch(e){}}
+micBtn.onclick=()=>{if(listening){contOn=false;document.getElementById("contSw").classList.remove("on");stopListen();}else{contOn=true;document.getElementById("contSw").classList.add("on");startListen();}};
+(()=>{
+const sc=document.createElement("canvas");sc.id="stars";document.body.prepend(sc);
+const sx=sc.getContext("2d");let P=[];
+function sizeStars(){sc.width=innerWidth;sc.height=innerHeight;const n=Math.min(110,Math.floor(innerWidth/12));P=Array.from({length:n},()=>({x:Math.random()*sc.width,y:Math.random()*sc.height,s:Math.random()*1.8+.4,v:Math.random()*.35+.08,o:Math.random()*6}));}
+sizeStars();addEventListener("resize",sizeStars);
+(function loop(){sx.clearRect(0,0,sc.width,sc.height);const t=Date.now();for(const p of P){p.y-=p.v;if(p.y<-4){p.y=sc.height+4;p.x=Math.random()*sc.width;}const tw=.35+.65*Math.abs(Math.sin(t/900+p.o));sx.fillStyle="rgba(0,212,255,"+(.55*tw).toFixed(2)+")";sx.fillRect(p.x,p.y,p.s,p.s);}requestAnimationFrame(loop);})();
+const t0d=Date.now();
+setInterval(()=>{const s=Math.floor((Date.now()-t0d)/1000);const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v;};set("teleUp",String(Math.floor(s/60)).padStart(2,"0")+":"+String(s%60).padStart(2,"0"));set("telePing",(18+Math.random()*42).toFixed(0)+"ms");set("teleTasks",tasks.length);set("teleMem",facts.length);const tk=document.getElementById("tickerEl");if(tk)tk.textContent=(`◈ UPLINK SECURE ◈ PWR 98% ◈ MEM ${facts.length} ◈ TASKS ${tasks.length} ◈ ${new Date().toLocaleTimeString()} ◈ ALL SYSTEMS NOMINAL ◈ `).repeat(3);},2000);
+})();
+const wv=document.getElementById("wave"),wx=wv.getContext("2d");
+function drawWave(){
+wx.clearRect(0,0,600,54);
+const tm=Date.now()/280;
+const grad=wx.createLinearGradient(0,0,600,0);
+grad.addColorStop(0,"rgba(0,120,180,.15)");grad.addColorStop(.5,"#7df3ff");grad.addColorStop(1,"rgba(0,120,180,.15)");
+function layer(amp,freq,speed,width,color,blur,fill){
+wx.beginPath();
+for(let x=0;x<=600;x+=3){const e=Math.sin(x/600*Math.PI);const a=(speaking?Math.sin(x*freq+tm*speed)*amp*(0.4+Math.random()*0.6)+Math.sin(x*0.013-tm*1.7)*amp*0.35:Math.sin(x*freq+tm*speed)*amp*e+Math.sin(x*0.02+tm)*2);const y=27+a;x===0?wx.moveTo(x,y):wx.lineTo(x,y);}
+if(fill){wx.save();wx.lineTo(600,54);wx.lineTo(0,54);wx.closePath();const fg=wx.createLinearGradient(0,10,0,54);fg.addColorStop(0,"rgba(0,229,255,.20)");fg.addColorStop(1,"rgba(0,229,255,0)");wx.fillStyle=fg;wx.fill();wx.restore();wx.beginPath();for(let x=0;x<=600;x+=3){const e=Math.sin(x/600*Math.PI);const a=(speaking?Math.sin(x*freq+tm*speed)*amp*(0.4+Math.random()*0.6)+Math.sin(x*0.013-tm*1.7)*amp*0.35:Math.sin(x*freq+tm*speed)*amp*e+Math.sin(x*0.02+tm)*2);const y=27+a;x===0?wx.moveTo(x,y):wx.lineTo(x,y);}}
+wx.strokeStyle=color;wx.lineWidth=width;wx.shadowColor="#00d4ff";wx.shadowBlur=blur;wx.stroke();wx.shadowBlur=0;
+}
+layer(3,0.030,0.7,5,"rgba(0,110,160,.35)",0,false);
+layer(6,0.045,1.3,1.2,"rgba(0,180,220,.5)",4,false);
+layer(9,0.05,1.0,2,grad,10,true);
+const hx=(tm*140)%660-30;
+wx.beginPath();wx.arc(Math.max(0,Math.min(600,hx)),27+Math.sin(hx*0.05+tm)*9,3.4,0,Math.PI*2);
+wx.fillStyle="#eaffff";wx.shadowColor="#00e5ff";wx.shadowBlur=14;wx.fill();wx.shadowBlur=0;
+requestAnimationFrame(drawWave);
+}
+drawWave();
+const bootLines=["JARVIS OS v2.0 — initializing...","Loading neural core drivers... OK","Neural network cores online... OK","Security protocols... ACTIVE","Secure uplink... CONNECTED","Good evening. I am J.A.R.V.I.S."];
+const bootEl=document.getElementById("bootLog"),bootScr=document.getElementById("boot");
+(async()=>{
+for(const l of bootLines){const d=document.createElement("div");d.textContent="> "+l;bootEl.appendChild(d);await new Promise(r=>setTimeout(r,380));}
+await new Promise(r=>setTimeout(r,400));
+bootScr.style.opacity="0";setTimeout(()=>bootScr.style.display="none",650);
+const g=root.jarvisGreeting.selectOne.evaluateItem;const m=addMsg("jarvis",g+(userName?" Welcome back, "+userName+".":""));speak(g);
+if(contOn){try{startListen();}catch(e){}}
+})();
+</script>

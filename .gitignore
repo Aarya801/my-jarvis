@@ -1,0 +1,19 @@
+# Local bridge secrets / runtime files
+.jarvis_bridge_token
+*.token
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Editors
+.vscode/
+.idea/
+
+# Python / Node caches if future modules are added
+__pycache__/
+*.py[cod]
+node_modules/
+
+# Local logs
+*.log

@@ -1,0 +1,16 @@
+{
+  "Chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "Google Chrome": "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
+  "Edge": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "Microsoft Edge": "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+  "VS Code": "C:\\Users\\AARYA LAPTOP\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+  "Code": "C:\\Users\\AARYA LAPTOP\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe",
+  "Notepad": "notepad.exe",
+  "Calculator": "calc.exe",
+  "File Explorer": "explorer.exe",
+  "Explorer": "explorer.exe",
+  "Terminal": "wt.exe",
+  "Command Prompt": "cmd.exe",
+  "PowerShell": "powershell.exe",
+  "Task Manager": "taskmgr.exe"
+}

@@ -1,32 +1,24 @@
-# Manual Test Matrix
+﻿# J.A.R.V.I.S. Automated Test Documentation
 
-Because the front end depends on browser APIs and the Perchance runtime, the core test plan is browser/manual rather than a fake automated test suite.
+## 1. Test Suite Overview
 
-| Area | Test | Expected result |
-|---|---|---|
-| Boot | Open the Perchance page | Boot sequence completes and dashboard appears |
-| Chat | Send a normal question | J.A.R.V.I.S. replies without a page reload |
-| Voice | Toggle voice and speak | Recognition starts/stops when browser supports it |
-| Memory | `remember that I like X` | Memory appears and survives reload |
-| Tasks | Add and remove a task | Task list updates and persists |
-| UI | Change theme/accent | UI change persists after reload |
-| Forge | Forge a small UI feature | Feature is installed and listed |
-| Files | Open a local text file | File contents appear in editor |
-| Save | Edit and save a local file | Updated contents are written/downloaded |
-| Bridge | Launch bridge and connect | Status changes to direct PC link |
-| Read | Read a known text file through bridge | Correct file contents are returned |
-| Write | Write a test file through bridge | File is created/updated |
-| Run | Run `echo hello` | Output is returned |
-| Timeout | Run a command that exceeds the limit | Bridge terminates the request after timeout |
-| Disconnect | Stop bridge | App reports that direct PC access is unavailable |
-| Responsive UI | Test desktop + narrow browser | Panels remain usable without horizontal overflow |
+The automated test suite runs under `pytest` and verifies that every major layer of J.A.R.V.I.S. functions reliably without relying on mocks for local file semantics:
 
-## Release checklist
+- **`test_audit_critical.py`**: Verifies path traversal attacks, system directory protection, protected process termination blocks, file overwrite guards, operation cancellation, and Ollama offline fallback handling.
+- **`test_nlu.py`**: Verifies natural language intent parsing and entity extraction across all standard prompt directive patterns.
+- **`test_policy.py`**: Verifies path containment, system directory blocks, path traversal rejection, and risk level policies.
+- **`test_system_tools.py`**: Verifies folder creation, file creation, silent overwrite prevention, safe file copying, renaming, and multi-folder file search using temporary isolated directories (`tmp_path`).
+- **`test_desktop_organizer.py`**: Verifies the two-stage Desktop Organizer workflow (Phase 1 Preview + Phase 2 Execution) in a mock desktop directory, verifying category mapping and file preservation.
+- **`test_router.py`**: Verifies end-to-end command routing, greeting dispatch, hardware status queries, protected process blocks, and approval replay.
+- **`test_core.py`**: Verifies configuration parsing, SQLite memory store round-trip, and tool audit logging.
 
-- [ ] No secrets or bridge token are committed.
-- [ ] README setup steps match the current files.
-- [ ] The Perchance page URL in the README is current.
-- [ ] Bridge remains loopback-only.
-- [ ] A harmless bridge command succeeds.
-- [ ] Memory and tasks survive a reload.
-- [ ] Browser console has no blocking errors during the normal flow.
+## 2. Running Tests
+
+To run the full suite:
+
+```powershell
+.venv\Scripts\activate
+python -m pytest -v
+```
+
+Expected output: `28 passed in ~2.5s`.

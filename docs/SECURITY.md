@@ -1,33 +1,25 @@
-# Security Notes
+﻿# J.A.R.V.I.S. Security & Safety Model
 
-J.A.R.V.I.S. has a local PC-control bridge, so security is treated as a feature rather than an afterthought.
+## 1. Principles of Least Privilege and Containment
 
-## Trust boundary
+Unlike naive "AI agent" architectures that feed shell execution strings directly from LLM completions into `subprocess.run(shell=True)`, J.A.R.V.I.S. enforces a **closed, allowlisted execution model**.
 
-The browser application is untrusted relative to the Windows machine. The PowerShell bridge is the privileged boundary.
-
-### Controls
-
-- Bridge listens only on `127.0.0.1`.
-- Privileged endpoints require `X-Token`.
-- The token is generated and stored locally in the user's profile.
-- `/status` does not expose the token and is used only as a connectivity probe.
-- Command execution has a 30-second timeout.
-- Command output is capped before returning to the browser.
-- The bridge window indicates that closing it removes direct PC access.
-
-## Important limitation
-
-A token-authenticated local shell bridge is still a powerful capability. This project is intended for the owner's personal Windows machine, not for exposing the bridge to the internet or a shared network.
-
-Never port-forward `8765`, bind the listener to `0.0.0.0`, commit the token file, or paste the token into source code.
-
-## Recommended operating model
-
-1. Run the bridge only when PC-control features are needed.
-2. Keep the bridge on loopback.
-3. Treat the token like a password.
-4. Review commands before allowing destructive operations.
-5. Stop the bridge when finished.
-
-The project describes the bridge as **local PC control**, not as a secure remote administration product.
+1. **No Arbitrary Code/Shell Execution**: An LLM cannot execute command line strings, scripts, or system-altering binaries directly.
+2. **Deterministic Tool Registration**: Only tools formally registered in `ToolRegistry` can be invoked.
+3. **Strict Path Containment**:
+   - File reads, writes, searches, and moves are confined strictly to approved user workspaces:
+     - User Desktop (`~/Desktop` or `~/OneDrive/Desktop`)
+     - User Documents (`~/Documents`)
+     - User Downloads (`~/Downloads`)
+     - Project root
+   - Any path resolving to `C:\Windows`, `C:\Program Files`, `C:\ProgramData`, or sensitive user directories (`.ssh`, `.aws`, `AppData`) raises an immediate `PermissionError`.
+4. **No Silent Destruction**:
+   - Overwriting existing files during file creation is strictly rejected.
+   - Deleting files is not enabled in standard operations.
+   - Relocating desktop files requires explicit confirmation.
+5. **Protected System Processes**:
+   - The application termination tool explicitly denies attempts to terminate critical Windows operating system tasks (`explorer.exe`, `svchost.exe`, `csrss.exe`, `dwm.exe`, `lsass.exe`, `services.exe`, etc.).
+6. **Audit Trail**:
+   - Every executed tool directive is permanently logged to `data/jarvis.db` in the SQLite audit table, recording the timestamp, tool name, parameters, risk tier, approval state, and result message.
+7. **Privacy Mode**:
+   - When `PRIVACY_MODE=true` is set in `.env`, all outbound network requests (cloud AI queries, web research, screen analysis APIs) are blocked.

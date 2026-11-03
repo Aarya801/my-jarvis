@@ -1,37 +1,44 @@
-# Setup Guide
+# J.A.R.V.I.S. Setup
 
-## Web app
+## Current Python desktop application
 
-1. Open the J.A.R.V.I.S. generator on Perchance.
-2. Paste/update `index.html` and `main.pjs`.
-3. Save the generator.
-4. Open the published page.
+The current `main.py` starts the Windows desktop application built with Python and PySide6.
 
-## Optional Windows bridge
+### Requirements
 
-1. Keep the repository on the Windows PC where PC control is needed.
-2. Run `src/JARVIS-App.bat`.
-3. Copy the displayed bridge token.
-4. Paste it into the J.A.R.V.I.S. **CONNECT** box.
-5. Press **CONNECT**.
-6. Close the bridge window when direct PC access is no longer needed.
+- Windows 10 or 11 (the automation tools are Windows-oriented)
+- Python 3.10 or newer
+- Optional: Ollama and the `qwen2.5:3b` model for local language-model responses
+- Optional: credentials for a configured cloud AI provider
 
-## Browser requirements
+### Install and run
 
-Chrome/Edge provide the best experience because J.A.R.V.I.S. can use Speech Recognition and the File System Access API when available. The app still has fallbacks for ordinary file input/download flows.
+From PowerShell in the repository directory:
 
-## Troubleshooting
+```powershell
+python -m venv .venv
+.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
+Copy-Item .env.example .env
+python main.py
+```
 
-### Bridge says offline
+Configure optional provider and privacy settings in `.env` as described by the example file. Do not commit API keys.
+The local AI provider requires Ollama to be installed and running; pull the model with `ollama run qwen2.5:3b`.
+Without a local model or configured cloud provider, the application can use its offline fallback behavior.
 
-- Confirm the bridge window is running.
-- Confirm it says `127.0.0.1:8765` and did not report `START FAILED`.
-- Paste the token again and press **CONNECT**.
+### Run tests
 
-### Voice does not work
+```powershell
+python -m pytest -v
+```
 
-Browser speech APIs vary by browser and operating system. Use the text box if recognition is unavailable.
+The tests use isolated temporary paths for filesystem operations. They do not establish that every Windows integration
+works on every PC; verify the relevant features on the target Windows version and hardware.
 
-### PC control is unavailable
+## Legacy browser prototype
 
-The bridge is intentionally optional. File editing through browser APIs and normal chat continue to work without it.
+The repository also retains `index.html` and `main.pjs`, an earlier Perchance browser prototype, plus an optional
+PowerShell bridge under `src/`. This is separate from the current Python desktop application. Browser speech and File
+System Access APIs vary by browser. The bridge exposes sensitive local actions; keep it bound to loopback and do not
+expose it to a public or shared network. Its legacy flow is not the setup path for the current desktop app.
